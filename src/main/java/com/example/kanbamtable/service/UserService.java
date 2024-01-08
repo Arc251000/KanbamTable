@@ -44,7 +44,7 @@ public class UserService {
     public List<Notification> getUsersNotifications(int page){
         UserAccount user=  ur.findByEmail( SecurityContextHolder.getContext().getAuthentication().getName()).get();
         Pageable pageable = PageRequest.of(page, 10);
-        return nr.findAllByUserAccount(user,pageable);
+        return nr.findAllByUserAccountOOrderByIdDesc(user,pageable);
 
     }
 

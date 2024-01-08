@@ -21,6 +21,11 @@ public class TaskController {
        ts.createTask(newTaskDTO);
     }
 
+    @DeleteMapping("/delete")
+    public void deleteProject(@RequestParam(name = "taskId")int taskId) throws Exception {
+        ts.deleteTask(taskId);
+    }
+
     @PostMapping("/state/undone")
     public void changeTaskStateToUndone(@RequestParam(name="taskId") int taskId){
         ts.changeTaskStateToUndone(taskId);
@@ -29,6 +34,11 @@ public class TaskController {
     @PostMapping("/state/processing")
     public void changeTaskStateToProcessing(@RequestParam(name="taskId")int taskId){
       ts.changeTaskStateToProcessing(taskId);
+    }
+
+    @PostMapping("/state/testing")
+    public void changeTaskStateToTesting(@RequestParam(name="taskId")int taskId){
+        ts.changeTaskStateToTesting(taskId);
     }
 
     @PostMapping("/state/done")

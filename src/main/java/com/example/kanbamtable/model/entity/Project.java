@@ -17,6 +17,7 @@ public class Project {
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
     private int id;
+    @Column(nullable = false)
     private String name;
 
     @JsonIgnore
@@ -28,6 +29,6 @@ public class Project {
     private List<Task> tasks;
 
     @JsonIgnore
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.REFRESH, mappedBy = "joinedProjects")
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.REFRESH)
     private List<UserAccount> workers;
 }

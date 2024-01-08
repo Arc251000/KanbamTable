@@ -47,6 +47,19 @@ public class TaskService {
 
     }
 
+    public void deleteTask(int taskId) throws Exception {
+
+        UserAccount user=  ur.findByEmail( SecurityContextHolder.getContext().getAuthentication().getName()).get();
+
+        Optional<Project> project= pr.findByIdAndOwner(taskId,user);
+
+        if(project.isPresent())
+            tr.deleteById(taskId);
+        else
+            throw new Exception("User doesn't own the project");
+
+    }
+
     public void changeTaskStateToUndone(int taskId){
 
         UserAccount user=  ur.findByEmail( SecurityContextHolder.getContext().getAuthentication().getName()).get();
@@ -71,6 +84,22 @@ public class TaskService {
                 task.setUser(user);
             }
             task.setState("Processing");
+        }
+
+        tr.save(task);
+
+    }
+
+    public void changeTaskStateToTesting(int taskId){
+
+        UserAccount user=  ur.findByEmail( SecurityContextHolder.getContext().getAuthentication().getName()).get();
+        Task task = tr.findById(taskId).get();
+
+        if(user.isOwnerOfProject(task.getProject().getId()) || user.isWorkerOfProject(task.getProject().getId())) {
+            if(task.getState().equals("Undone")){
+                task.setUser(user);
+            }
+            task.setState("Testing");
         }
 
         tr.save(task);

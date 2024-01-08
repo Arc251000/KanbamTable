@@ -44,11 +44,11 @@ public class ProjectService {
     }
 
 
-    public void deleteProject(int id) throws Exception {
+    public void deleteProject(int projectId) throws Exception {
 
         UserAccount user=  ur.findByEmail( SecurityContextHolder.getContext().getAuthentication().getName()).get();
 
-        Optional<Project> project= pr.findByIdAndOwner(id,user);
+        Optional<Project> project= pr.findByIdAndOwner(projectId,user);
 
         if(project.isPresent())
             pr.delete(project.get());
@@ -67,15 +67,28 @@ public class ProjectService {
             throw new Exception("User has no access to this information");
     }
 
+    public List<UserAccount> getProjectWorkers(int projectId) throws Exception {
+
+        UserAccount user=  ur.findByEmail( SecurityContextHolder.getContext().getAuthentication().getName()).get();
+
+        if(user.isOwnerOfProject(projectId)||user.isWorkerOfProject(projectId))
+            return pr.findById(projectId).get().getWorkers();
+        else
+            throw new Exception("User has no access to this information");
+    }
+
     public void sendProjectJoinNotification(String email, int projectId) throws Exception {
         UserAccount owner=  ur.findByEmail( SecurityContextHolder.getContext().getAuthentication().getName()).get();
         Optional<Project> project= pr.findByIdAndOwner(projectId,owner);
         UserAccount user=ur.findByEmail(email).get();
 
         if(project.isPresent()) {
+
             Notification newNotification = new Notification();
             newNotification.setText(owner.getEmail()+" te ha invitado a unirte al proyecto: "+project.get().getName());
-            newNotification.setUrl("");
+            newNotification.setUrl("/projects/join/accept?projectId="+projectId);
+            newNotification.setAccepted(false);
+            newNotification.setViewed(false);
             newNotification.setUserAccount(user);
             nr.save(newNotification);
 
@@ -90,18 +103,42 @@ public class ProjectService {
     public void joinUserToProject( int projectId) throws Exception {
 
         UserAccount user=  ur.findByEmail( SecurityContextHolder.getContext().getAuthentication().getName()).get();
-        Optional<Notification> notification= nr.findByUserAccountAndUrl(user,"");
+        List<Notification> notifications= nr.findByUserAccountAndUrlAndAccepted(user,
+                "/projects/join/accept?projectId="+projectId,
+                false);
 
-        if(notification.isPresent()) {
-            user.getJoinedProjects().add(pr.findById(projectId).get());
-            ur.save(user);
+        if(notifications.size()>0) {
+
+            for(Notification n: notifications){
+                n.setAccepted(true);
+                nr.save(n);
+            }
+
+            Project project = pr.findById(projectId).get();
+            project.getWorkers().add(user);
+            pr.save(project);
         }
         else
             throw new Exception("Owner doesn't invite user to the project");
 
     }
 
+    public void separateUserFromProject(String userEmail, int projectId) throws Exception {
 
+        UserAccount owner=  ur.findByEmail( SecurityContextHolder.getContext().getAuthentication().getName()).get();
+        Optional<Project> project= pr.findByIdAndOwner(projectId,owner);
+
+        if(project.isPresent()){
+
+            UserAccount user=  ur.findByEmail(userEmail).get();
+            user.getJoinedProjects().remove(project.get());
+
+        }
+        else
+            throw new Exception("Owner doesn't invite user to the project");
+
+
+    }
 
 
 

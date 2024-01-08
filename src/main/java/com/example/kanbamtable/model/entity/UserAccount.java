@@ -14,9 +14,12 @@ public class UserAccount {
     @Id
     private String email;
     @JsonIgnore
+    @Column(nullable = false)
     private String password;
+    @Column(nullable = false)
     private String name;
     @JsonIgnore
+    @Column(nullable = false)
     private String role;
 
     @JsonIgnore
@@ -28,7 +31,7 @@ public class UserAccount {
     private List<Project> ownedProjects;
 
     @JsonIgnore
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.REFRESH)
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.REFRESH, mappedBy= "workers")
     private List<Project> joinedProjects;
 
     @JsonIgnore
