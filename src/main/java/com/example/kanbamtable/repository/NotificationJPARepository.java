@@ -13,7 +13,7 @@ import java.util.Optional;
 @Repository
 public interface NotificationJPARepository extends JpaRepository<Notification, Serializable> {
 
-    public List<Notification> findAllByUserAccountOOrderByIdDesc(UserAccount user, Pageable page);
+    public List<Notification> findAllByUserAccountOrderByIdDesc(UserAccount user, Pageable page);
 
     public Optional<Notification> findByUserAccountAndUrl(UserAccount user, String url);
 
